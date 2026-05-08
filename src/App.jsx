@@ -35,6 +35,40 @@ const detectSocialByHost = (host) => {
   return null
 }
 
+const hasNestedUrlFragments = (value) => /https?:\/\/|www\./i.test(value)
+
+const isTelegramPathValid = (url) => {
+  const segments = url.pathname.split('/').filter(Boolean)
+  if (segments.length === 0) return false
+
+  const [first, second] = segments
+  if (first === 'joinchat' || first === 'c') {
+    return typeof second === 'string' && /^[A-Za-z0-9_-]{5,}$/.test(second)
+  }
+
+  if (first.startsWith('+')) {
+    return /^[A-Za-z0-9_-]{5,}$/.test(first.slice(1))
+  }
+
+  return /^[A-Za-z0-9_]{4,32}$/.test(first)
+}
+
+const isRedditPathValid = (url) => {
+  const host = url.hostname.toLowerCase().replace(/^www\./, '')
+  const segments = url.pathname.split('/').filter(Boolean)
+  if (segments.length === 0) return false
+
+  if (host === 'redd.it') {
+    return /^[A-Za-z0-9]+$/.test(segments[0])
+  }
+
+  if (segments[0] === 'r' || segments[0] === 'u' || segments[0] === 'user') {
+    return typeof segments[1] === 'string' && /^[A-Za-z0-9_]+$/.test(segments[1])
+  }
+
+  return false
+}
+
 function App() {
   const initialSettings = readStoredSettings()
   const [signalMode, setSignalMode] = useState(initialSettings?.signalMode ?? 'all')
@@ -48,10 +82,12 @@ function App() {
   const [linkError, setLinkError] = useState('')
 
   const normalizedInput = linkInput.trim()
-  const canSaveLink = normalizedInput.length > 0
 
   const handleSaveLink = () => {
-    if (!canSaveLink) return
+    if (!normalizedInput) {
+      setLinkError('Please paste at least one link before saving.')
+      return
+    }
 
     const newLinks = normalizedInput
       .split('\n')
@@ -64,6 +100,12 @@ function App() {
     for (const rawLink of newLinks) {
       try {
         const preparedUrl = normalizeUrl(rawLink)
+        const protocolHits = preparedUrl.match(/https?:\/\//gi)?.length ?? 0
+        if (protocolHits > 1) {
+          setLinkError('Link looks malformed (contains multiple URL parts).')
+          return
+        }
+
         const parsed = new URL(preparedUrl)
         const detectedSocial = detectSocialByHost(parsed.hostname)
 
@@ -72,11 +114,27 @@ function App() {
           return
         }
 
+        const tail = `${parsed.pathname}${parsed.search}${parsed.hash}`
+        if (hasNestedUrlFragments(tail)) {
+          setLinkError('Link looks malformed (nested domain/path detected).')
+          return
+        }
+
         if (detectedSocial !== selectedSocial) {
           setLinkError(
             selectedSocial === 'telegram'
               ? 'Telegram mode: only t.me or telegram.me links are allowed.'
               : 'Reddit mode: only reddit.com or redd.it links are allowed.',
+          )
+          return
+        }
+
+        const isPathValid = detectedSocial === 'telegram' ? isTelegramPathValid(parsed) : isRedditPathValid(parsed)
+        if (!isPathValid) {
+          setLinkError(
+            detectedSocial === 'telegram'
+              ? 'Invalid Telegram link format. Use links like t.me/channel_name.'
+              : 'Invalid Reddit link format. Use links like reddit.com/r/subreddit or redd.it/postId.',
           )
           return
         }
@@ -154,25 +212,24 @@ function App() {
             <label htmlFor="links" className="field-label">
               Links to parse
             </label>
-            <textarea
-              id="links"
-              className="field-control field-control-area"
-              value={linkInput}
-              onChange={(event) => {
-                setLinkInput(event.target.value)
-                if (linkError) setLinkError('')
-              }}
-              placeholder={`https://t.me/example_channel\nhttps://www.reddit.com/r/technology`}
-            />
-            {canSaveLink && (
+            <div className="link-input-row">
+              <textarea
+                id="links"
+                className="field-control field-control-area"
+                value={linkInput}
+                onChange={(event) => {
+                  setLinkInput(event.target.value)
+                  if (linkError) setLinkError('')
+                }}
+                placeholder={`https://t.me/example_channel\nhttps://www.reddit.com/r/technology`}
+              />
               <div className="link-actions">
                 <button type="button" className="save-link-btn" onClick={handleSaveLink}>
                   Save link
                 </button>
               </div>
-            )}
+            </div>
             <p className="field-note">Paste one or multiple links (one per line), then click Save link.</p>
-            {linkError && <p className="field-error">{linkError}</p>}
             {savedLinks.length > 0 && (
               <div className="saved-links">
                 <h2 className="saved-links-title">Saved links</h2>
@@ -233,6 +290,21 @@ function App() {
           </footer>
         </form>
       </section>
+      <div className="page-error-layer" aria-live="polite" aria-atomic="true">
+        <p
+          className={`field-error${linkError ? ' field-error-visible' : ''}`}
+          onClick={() => setLinkError('')}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              setLinkError('')
+            }
+          }}
+        >
+          {linkError}
+        </p>
+      </div>
     </main>
   )
 }

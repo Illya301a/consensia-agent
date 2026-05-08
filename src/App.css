@@ -109,12 +109,23 @@ h1 {
   line-height: 1.45;
 }
 
+.link-input-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem;
+}
+
 .field-note {
   font-size: 0.86rem;
   color: var(--text-muted);
 }
 
 .field-error {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  max-width: min(100%, 520px);
+  z-index: 5;
   display: flex;
   align-items: flex-start;
   gap: 0.45rem;
@@ -126,6 +137,18 @@ h1 {
   font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(180, 35, 90, 0.2);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+
+.field-error-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .field-error::before {
@@ -146,18 +169,26 @@ h1 {
 .link-actions {
   display: flex;
   justify-content: flex-start;
+  align-self: stretch;
+}
+
+.page-error-layer {
+  position: relative;
 }
 
 .save-link-btn {
   border: 1px solid rgba(236, 72, 153, 0.3);
-  border-radius: 999px;
-  padding: 0.45rem 0.82rem;
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
   font: inherit;
   font-weight: 600;
+  font-size: 1rem;
   color: var(--rose-500);
   background: rgba(252, 231, 243, 0.85);
   cursor: pointer;
   transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  min-height: 44px;
+  width: 100%;
 }
 
 .save-link-btn:hover {
@@ -343,6 +374,19 @@ h1 {
   .submit-btn {
     min-width: 180px;
   }
+
+  .link-input-row {
+    grid-template-columns: 1fr auto;
+    align-items: start;
+  }
+
+  .save-link-btn {
+    min-width: 132px;
+    width: auto;
+    height: 100%;
+    min-height: 80px;
+  }
+
 }
 
 @media (min-width: 1024px) {
