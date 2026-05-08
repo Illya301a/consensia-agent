@@ -1,121 +1,113 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
+import { useMemo, useState } from 'react'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [signalMode, setSignalMode] = useState('all')
+  const [links, setLinks] = useState('')
+  const [socials, setSocials] = useState({
+    telegram: true,
+    reddit: false,
+  })
+
+  const selectedNetworks = useMemo(
+    () => Object.entries(socials).filter(([, isSelected]) => isSelected).map(([name]) => name),
+    [socials],
+  )
+
+  const handleSocialChange = (networkName) => {
+    setSocials((previous) => ({
+      ...previous,
+      [networkName]: !previous[networkName],
+    }))
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    // UI-only screen for now: keep interaction local.
+    // eslint-disable-next-line no-console
+    console.log({
+      signalMode,
+      links,
+      selectedNetworks,
+    })
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+    <main className="page">
+      <section className="card" aria-labelledby="page-title">
+        <header className="hero">
+          <p className="badge">Consensia Agent</p>
+          <h1 id="page-title">Signal Parser Settings</h1>
+          <p className="subtitle">
+            Choose how to send signals and add links for parsing in Telegram and Reddit.
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+        </header>
+
+        <form className="form" onSubmit={handleSubmit}>
+          <div className="field-group">
+            <label htmlFor="signal-mode" className="field-label">
+              Signal mode
+            </label>
+            <select
+              id="signal-mode"
+              className="field-control"
+              value={signalMode}
+              onChange={(event) => setSignalMode(event.target.value)}
+            >
+              <option value="all">Send all signals</option>
+              <option value="high">Send only high signals</option>
+            </select>
+          </div>
+
+          <div className="field-group">
+            <label htmlFor="links" className="field-label">
+              Links to parse
+            </label>
+            <textarea
+              id="links"
+              className="field-control field-control-area"
+              value={links}
+              onChange={(event) => setLinks(event.target.value)}
+              placeholder={`https://t.me/example_channel\nhttps://www.reddit.com/r/technology`}
+            />
+            <p className="field-note">Use one link per line.</p>
+          </div>
+
+          <fieldset className="field-group socials">
+            <legend className="field-label">Social networks</legend>
+            <div className="social-options">
+              <label className="checkbox-card">
+                <input
+                  type="checkbox"
+                  checked={socials.telegram}
+                  onChange={() => handleSocialChange('telegram')}
+                />
+                <span>Telegram</span>
+              </label>
+              <label className="checkbox-card">
+                <input
+                  type="checkbox"
+                  checked={socials.reddit}
+                  onChange={() => handleSocialChange('reddit')}
+                />
+                <span>Reddit</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <footer className="form-footer">
+            <p className="status">
+              {selectedNetworks.length > 0
+                ? `Selected: ${selectedNetworks.join(', ')}`
+                : 'Choose at least one social network'}
+            </p>
+            <button type="submit" className="submit-btn">
+              Save settings
+            </button>
+          </footer>
+        </form>
       </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </main>
   )
 }
 
