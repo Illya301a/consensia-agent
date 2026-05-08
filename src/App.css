@@ -103,6 +103,84 @@ h1 {
   box-shadow: 0 0 0 4px rgba(244, 63, 143, 0.16);
 }
 
+.signal-mode-select {
+  position: relative;
+}
+
+.signal-mode-trigger {
+  width: 100%;
+  border: 1px solid var(--surface-border);
+  border-radius: 13px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  padding: 0.7rem 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signal-mode-trigger:hover {
+  border-color: rgba(236, 72, 153, 0.45);
+}
+
+.signal-mode-trigger:focus-visible {
+  outline: none;
+  border-color: var(--rose-400);
+  box-shadow: 0 0 0 4px rgba(244, 63, 143, 0.16);
+}
+
+.signal-mode-chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.signal-mode-select-open .signal-mode-chevron {
+  transform: rotate(180deg);
+}
+
+.signal-mode-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 12;
+  border: 1px solid rgba(236, 72, 153, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 14px 24px rgba(236, 72, 153, 0.18);
+  padding: 0.3rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.signal-mode-option {
+  width: 100%;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  padding: 0.58rem 0.62rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.signal-mode-option:hover {
+  background: rgba(252, 231, 243, 0.9);
+}
+
+.signal-mode-option-active {
+  background: rgba(244, 63, 143, 0.14);
+  color: var(--rose-500);
+  font-weight: 600;
+}
+
 .field-control-area {
   min-height: 80px;
   resize: vertical;

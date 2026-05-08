@@ -1,5 +1,5 @@
 import './App.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { validateLinkForSocial } from './utils/linkValidation'
 
 const STORAGE_KEY = 'consensia.settings'
@@ -21,6 +21,11 @@ const createLinkItem = (url) => ({
   url,
 })
 
+const SIGNAL_MODE_OPTIONS = [
+  { value: 'all', label: 'Send all signals' },
+  { value: 'high', label: 'Send only high signals' },
+]
+
 function App() {
   const initialSettings = readStoredSettings()
   const [signalMode, setSignalMode] = useState(initialSettings?.signalMode ?? 'all')
@@ -32,6 +37,8 @@ function App() {
   )
   const [selectedSocial, setSelectedSocial] = useState(initialSettings?.selectedSocial ?? 'telegram')
   const [linkError, setLinkError] = useState('')
+  const [isSignalMenuOpen, setIsSignalMenuOpen] = useState(false)
+  const signalMenuRef = useRef(null)
 
   const normalizedInput = linkInput.trim()
 
@@ -81,6 +88,39 @@ function App() {
     })
   }, [signalMode, selectedSocial, savedLinks])
 
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!signalMenuRef.current?.contains(event.target)) {
+        setIsSignalMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsSignalMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!linkError) return undefined
+
+    const timerId = window.setTimeout(() => {
+      setLinkError('')
+    }, 3500)
+
+    return () => {
+      window.clearTimeout(timerId)
+    }
+  }, [linkError])
+
   const handleSubmit = (event) => {
     event.preventDefault()
     const payload = {
@@ -109,15 +149,44 @@ function App() {
             <label htmlFor="signal-mode" className="field-label">
               Signal mode
             </label>
-            <select
+            <div
               id="signal-mode"
-              className="field-control"
-              value={signalMode}
-              onChange={(event) => setSignalMode(event.target.value)}
+              className={`signal-mode-select${isSignalMenuOpen ? ' signal-mode-select-open' : ''}`}
+              ref={signalMenuRef}
             >
-              <option value="all">Send all signals</option>
-              <option value="high">Send only high signals</option>
-            </select>
+              <button
+                type="button"
+                className="signal-mode-trigger"
+                onClick={() => setIsSignalMenuOpen((previous) => !previous)}
+                aria-expanded={isSignalMenuOpen}
+                aria-haspopup="listbox"
+              >
+                <span>{SIGNAL_MODE_OPTIONS.find((option) => option.value === signalMode)?.label}</span>
+                <span className="signal-mode-chevron" aria-hidden="true">
+                  ▾
+                </span>
+              </button>
+              {isSignalMenuOpen && (
+                <ul className="signal-mode-menu" role="listbox" aria-label="Signal mode options">
+                  {SIGNAL_MODE_OPTIONS.map((option) => (
+                    <li key={option.value}>
+                      <button
+                        type="button"
+                        className={`signal-mode-option${signalMode === option.value ? ' signal-mode-option-active' : ''}`}
+                        onClick={() => {
+                          setSignalMode(option.value)
+                          setIsSignalMenuOpen(false)
+                        }}
+                        role="option"
+                        aria-selected={signalMode === option.value}
+                      >
+                        {option.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
 
           <div className="field-group">
