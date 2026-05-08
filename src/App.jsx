@@ -1,5 +1,6 @@
 import './App.css'
 import { useEffect, useState } from 'react'
+import { validateLinkForSocial } from './utils/linkValidation'
 
 const STORAGE_KEY = 'consensia.settings'
 
@@ -19,55 +20,6 @@ const createLinkItem = (url) => ({
   id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`,
   url,
 })
-
-const normalizeUrl = (value) => {
-  const trimmed = value.trim()
-  if (!trimmed) return ''
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
-}
-
-const detectSocialByHost = (host) => {
-  const normalizedHost = host.toLowerCase().replace(/^www\./, '')
-  if (normalizedHost === 't.me' || normalizedHost === 'telegram.me') return 'telegram'
-  if (normalizedHost === 'reddit.com' || normalizedHost.endsWith('.reddit.com') || normalizedHost === 'redd.it') {
-    return 'reddit'
-  }
-  return null
-}
-
-const hasNestedUrlFragments = (value) => /https?:\/\/|www\./i.test(value)
-
-const isTelegramPathValid = (url) => {
-  const segments = url.pathname.split('/').filter(Boolean)
-  if (segments.length === 0) return false
-
-  const [first, second] = segments
-  if (first === 'joinchat' || first === 'c') {
-    return typeof second === 'string' && /^[A-Za-z0-9_-]{5,}$/.test(second)
-  }
-
-  if (first.startsWith('+')) {
-    return /^[A-Za-z0-9_-]{5,}$/.test(first.slice(1))
-  }
-
-  return /^[A-Za-z0-9_]{4,32}$/.test(first)
-}
-
-const isRedditPathValid = (url) => {
-  const host = url.hostname.toLowerCase().replace(/^www\./, '')
-  const segments = url.pathname.split('/').filter(Boolean)
-  if (segments.length === 0) return false
-
-  if (host === 'redd.it') {
-    return /^[A-Za-z0-9]+$/.test(segments[0])
-  }
-
-  if (segments[0] === 'r' || segments[0] === 'u' || segments[0] === 'user') {
-    return typeof segments[1] === 'string' && /^[A-Za-z0-9_]+$/.test(segments[1])
-  }
-
-  return false
-}
 
 function App() {
   const initialSettings = readStoredSettings()
@@ -98,52 +50,13 @@ function App() {
 
     const parsedLinks = []
     for (const rawLink of newLinks) {
-      try {
-        const preparedUrl = normalizeUrl(rawLink)
-        const protocolHits = preparedUrl.match(/https?:\/\//gi)?.length ?? 0
-        if (protocolHits > 1) {
-          setLinkError('Link looks malformed (contains multiple URL parts).')
-          return
-        }
-
-        const parsed = new URL(preparedUrl)
-        const detectedSocial = detectSocialByHost(parsed.hostname)
-
-        if (!detectedSocial) {
-          setLinkError('Only Telegram (t.me) and Reddit (reddit.com, redd.it) links are supported.')
-          return
-        }
-
-        const tail = `${parsed.pathname}${parsed.search}${parsed.hash}`
-        if (hasNestedUrlFragments(tail)) {
-          setLinkError('Link looks malformed (nested domain/path detected).')
-          return
-        }
-
-        if (detectedSocial !== selectedSocial) {
-          setLinkError(
-            selectedSocial === 'telegram'
-              ? 'Telegram mode: only t.me or telegram.me links are allowed.'
-              : 'Reddit mode: only reddit.com or redd.it links are allowed.',
-          )
-          return
-        }
-
-        const isPathValid = detectedSocial === 'telegram' ? isTelegramPathValid(parsed) : isRedditPathValid(parsed)
-        if (!isPathValid) {
-          setLinkError(
-            detectedSocial === 'telegram'
-              ? 'Invalid Telegram link format. Use links like t.me/channel_name.'
-              : 'Invalid Reddit link format. Use links like reddit.com/r/subreddit or redd.it/postId.',
-          )
-          return
-        }
-
-        parsedLinks.push(preparedUrl)
-      } catch {
-        setLinkError('Please enter valid links. Example: https://t.me/channel_name')
+      const validationResult = validateLinkForSocial(rawLink, selectedSocial)
+      if (!validationResult.ok) {
+        setLinkError(validationResult.error)
         return
       }
+
+      parsedLinks.push(validationResult.value)
     }
 
     setLinkError('')
@@ -177,7 +90,6 @@ function App() {
       updatedAt: Date.now(),
     }
     persistSettings(payload)
-    // eslint-disable-next-line no-console
     console.log(payload)
   }
 
