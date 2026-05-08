@@ -1,11 +1,35 @@
 import './App.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+const STORAGE_KEY = 'consensia.settings'
+
+const readStoredSettings = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+const createLinkItem = (url) => ({
+  id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  url,
+})
 
 function App() {
-  const [signalMode, setSignalMode] = useState('all')
+  const initialSettings = readStoredSettings()
+  const [signalMode, setSignalMode] = useState(initialSettings?.signalMode ?? 'all')
   const [linkInput, setLinkInput] = useState('')
-  const [savedLinks, setSavedLinks] = useState([])
-  const [selectedSocial, setSelectedSocial] = useState('telegram')
+  const [savedLinks, setSavedLinks] = useState(
+    Array.isArray(initialSettings?.savedLinks)
+      ? initialSettings.savedLinks.filter((link) => link && typeof link.id === 'string' && typeof link.url === 'string')
+      : [],
+  )
+  const [selectedSocial, setSelectedSocial] = useState(initialSettings?.selectedSocial ?? 'telegram')
 
   const normalizedInput = linkInput.trim()
   const canSaveLink = normalizedInput.length > 0
@@ -20,19 +44,38 @@ function App() {
 
     if (newLinks.length === 0) return
 
-    setSavedLinks((previous) => [...previous, ...newLinks])
+    setSavedLinks((previous) => [...previous, ...newLinks.map((url) => createLinkItem(url))])
     setLinkInput('')
   }
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    // UI-only screen for now: keep interaction local.
-    // eslint-disable-next-line no-console
-    console.log({
+  const handleDeleteLink = (linkId) => {
+    setSavedLinks((previous) => previous.filter((link) => link.id !== linkId))
+  }
+
+  const persistSettings = (settings) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+  }
+
+  useEffect(() => {
+    persistSettings({
       signalMode,
       selectedSocial,
       savedLinks,
+      updatedAt: Date.now(),
     })
+  }, [signalMode, selectedSocial, savedLinks])
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    const payload = {
+      signalMode,
+      selectedSocial,
+      savedLinks,
+      updatedAt: Date.now(),
+    }
+    persistSettings(payload)
+    // eslint-disable-next-line no-console
+    console.log(payload)
   }
 
   return (
@@ -85,9 +128,17 @@ function App() {
               <div className="saved-links">
                 <h2 className="saved-links-title">Saved links</h2>
                 <ul className="saved-links-list">
-                  {savedLinks.map((link, index) => (
-                    <li key={`${link}-${index}`} className="saved-link-item">
-                      {link}
+                  {savedLinks.map((link) => (
+                    <li key={link.id} className="saved-link-item">
+                      <span className="saved-link-text">{link.url}</span>
+                      <button
+                        type="button"
+                        className="remove-link-btn"
+                        onClick={() => handleDeleteLink(link.id)}
+                        aria-label={`Remove link ${link.url}`}
+                      >
+                        ×
+                      </button>
                     </li>
                   ))}
                 </ul>

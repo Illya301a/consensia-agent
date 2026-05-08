@@ -104,7 +104,7 @@ h1 {
 }
 
 .field-control-area {
-  min-height: 130px;
+  min-height: 80px;
   resize: vertical;
   line-height: 1.45;
 }
@@ -166,13 +166,49 @@ h1 {
 }
 
 .saved-link-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
   padding: 0.5rem 0.6rem;
   border-radius: 9px;
   border: 1px solid rgba(236, 72, 153, 0.2);
   background: #fff;
+}
+
+.saved-link-text {
   color: var(--text-muted);
   word-break: break-word;
   line-height: 1.35;
+  flex: 1;
+}
+
+.remove-link-btn {
+  border: 1px solid rgba(236, 72, 153, 0.25);
+  background: rgba(252, 231, 243, 0.92);
+  color: var(--rose-500);
+  border-radius: 999px;
+  width: 1.55rem;
+  height: 1.55rem;
+  display: inline-grid;
+  place-items: center;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.remove-link-btn:hover {
+  border-color: rgba(236, 72, 153, 0.55);
+  background: rgba(252, 231, 243, 1);
+  transform: scale(1.03);
+}
+
+.remove-link-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(244, 63, 143, 0.16);
 }
 
 .socials {
