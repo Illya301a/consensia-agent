@@ -319,7 +319,7 @@ h1 {
 
 .submit-btn {
   border: 0;
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 0.8rem 1rem;
   font: inherit;
   font-weight: 650;

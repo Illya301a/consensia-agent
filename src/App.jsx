@@ -283,7 +283,6 @@ function App() {
           </fieldset>
 
           <footer className="form-footer">
-            <p className="status">Selected: {selectedSocial}</p>
             <button type="submit" className="submit-btn">
               Save settings
             </button>
