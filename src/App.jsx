@@ -20,6 +20,21 @@ const createLinkItem = (url) => ({
   url,
 })
 
+const normalizeUrl = (value) => {
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+}
+
+const detectSocialByHost = (host) => {
+  const normalizedHost = host.toLowerCase().replace(/^www\./, '')
+  if (normalizedHost === 't.me' || normalizedHost === 'telegram.me') return 'telegram'
+  if (normalizedHost === 'reddit.com' || normalizedHost.endsWith('.reddit.com') || normalizedHost === 'redd.it') {
+    return 'reddit'
+  }
+  return null
+}
+
 function App() {
   const initialSettings = readStoredSettings()
   const [signalMode, setSignalMode] = useState(initialSettings?.signalMode ?? 'all')
@@ -30,6 +45,7 @@ function App() {
       : [],
   )
   const [selectedSocial, setSelectedSocial] = useState(initialSettings?.selectedSocial ?? 'telegram')
+  const [linkError, setLinkError] = useState('')
 
   const normalizedInput = linkInput.trim()
   const canSaveLink = normalizedInput.length > 0
@@ -44,7 +60,36 @@ function App() {
 
     if (newLinks.length === 0) return
 
-    setSavedLinks((previous) => [...previous, ...newLinks.map((url) => createLinkItem(url))])
+    const parsedLinks = []
+    for (const rawLink of newLinks) {
+      try {
+        const preparedUrl = normalizeUrl(rawLink)
+        const parsed = new URL(preparedUrl)
+        const detectedSocial = detectSocialByHost(parsed.hostname)
+
+        if (!detectedSocial) {
+          setLinkError('Only Telegram (t.me) and Reddit (reddit.com, redd.it) links are supported.')
+          return
+        }
+
+        if (detectedSocial !== selectedSocial) {
+          setLinkError(
+            selectedSocial === 'telegram'
+              ? 'Telegram mode: only t.me or telegram.me links are allowed.'
+              : 'Reddit mode: only reddit.com or redd.it links are allowed.',
+          )
+          return
+        }
+
+        parsedLinks.push(preparedUrl)
+      } catch {
+        setLinkError('Please enter valid links. Example: https://t.me/channel_name')
+        return
+      }
+    }
+
+    setLinkError('')
+    setSavedLinks((previous) => [...previous, ...parsedLinks.map((url) => createLinkItem(url))])
     setLinkInput('')
   }
 
@@ -113,7 +158,10 @@ function App() {
               id="links"
               className="field-control field-control-area"
               value={linkInput}
-              onChange={(event) => setLinkInput(event.target.value)}
+              onChange={(event) => {
+                setLinkInput(event.target.value)
+                if (linkError) setLinkError('')
+              }}
               placeholder={`https://t.me/example_channel\nhttps://www.reddit.com/r/technology`}
             />
             {canSaveLink && (
@@ -124,6 +172,7 @@ function App() {
               </div>
             )}
             <p className="field-note">Paste one or multiple links (one per line), then click Save link.</p>
+            {linkError && <p className="field-error">{linkError}</p>}
             {savedLinks.length > 0 && (
               <div className="saved-links">
                 <h2 className="saved-links-title">Saved links</h2>
@@ -154,7 +203,10 @@ function App() {
                   type="radio"
                   name="social-network"
                   checked={selectedSocial === 'telegram'}
-                  onChange={() => setSelectedSocial('telegram')}
+                  onChange={() => {
+                    setSelectedSocial('telegram')
+                    if (linkError) setLinkError('')
+                  }}
                 />
                 <span>Telegram</span>
               </label>
@@ -163,7 +215,10 @@ function App() {
                   type="radio"
                   name="social-network"
                   checked={selectedSocial === 'reddit'}
-                  onChange={() => setSelectedSocial('reddit')}
+                  onChange={() => {
+                    setSelectedSocial('reddit')
+                    if (linkError) setLinkError('')
+                  }}
                 />
                 <span>Reddit</span>
               </label>

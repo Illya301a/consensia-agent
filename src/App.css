@@ -114,6 +114,35 @@ h1 {
   color: var(--text-muted);
 }
 
+.field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.6rem 0.72rem;
+  border-radius: 10px;
+  border: 1px solid rgba(180, 35, 90, 0.45);
+  background: rgba(255, 233, 242, 0.95);
+  color: #8f1245;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.field-error::before {
+  content: '!';
+  display: inline-grid;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  margin-top: 0.07rem;
+  background: #b4235a;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .link-actions {
   display: flex;
   justify-content: flex-start;
