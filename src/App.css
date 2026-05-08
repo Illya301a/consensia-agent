@@ -19,12 +19,10 @@ body {
 }
 
 .page {
-  min-height: 100dvh;
-  height: 100%;
-  padding: clamp(0.75rem, 1.8vh, 1.4rem);
+  min-height: 100vh;
+  padding: 1.1rem;
   display: grid;
   place-items: center;
-  overflow: hidden;
   background:
     radial-gradient(circle at 0% 0%, #ffffff 0%, #ffffff 22%, transparent 50%),
     linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 48%, var(--bg-deep) 100%);
@@ -32,7 +30,6 @@ body {
 
 .card {
   width: min(100%, 860px);
-  max-height: calc(100dvh - 1.5rem);
   border-radius: 24px;
   padding: 1.1rem;
   border: 1px solid var(--surface-border);
@@ -107,14 +104,75 @@ h1 {
 }
 
 .field-control-area {
-  min-height: 120px;
-  resize: none;
+  min-height: 130px;
+  resize: vertical;
   line-height: 1.45;
 }
 
 .field-note {
   font-size: 0.86rem;
   color: var(--text-muted);
+}
+
+.link-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.save-link-btn {
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  border-radius: 999px;
+  padding: 0.45rem 0.82rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--rose-500);
+  background: rgba(252, 231, 243, 0.85);
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+.save-link-btn:hover {
+  border-color: rgba(236, 72, 153, 0.55);
+  background: rgba(252, 231, 243, 1);
+  transform: translateY(-1px);
+}
+
+.save-link-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(244, 63, 143, 0.16);
+}
+
+.saved-links {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.saved-links-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.saved-links-list {
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+  max-height: 180px;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.saved-link-item {
+  padding: 0.5rem 0.6rem;
+  border-radius: 9px;
+  border: 1px solid rgba(236, 72, 153, 0.2);
+  background: #fff;
+  color: var(--text-muted);
+  word-break: break-word;
+  line-height: 1.35;
 }
 
 .socials {
@@ -194,11 +252,10 @@ h1 {
 
 @media (min-width: 480px) {
   .page {
-    padding: 1rem;
+    padding: 1.4rem;
   }
 
   .card {
-    max-height: calc(100dvh - 2rem);
     padding: 1.4rem;
   }
 }
@@ -225,11 +282,10 @@ h1 {
 
 @media (min-width: 1024px) {
   .page {
-    padding: 1.2rem;
+    padding: 2rem;
   }
 
   .card {
-    max-height: calc(100dvh - 2.4rem);
     padding: 2.1rem 2.25rem;
   }
 }
