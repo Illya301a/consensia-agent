@@ -44,9 +44,7 @@ table {
 }
 
 :root {
-  --bg-top: #ffffff;
-  --bg-mid: #fdf2f8;
-  --bg-deep: #fce7f3;
+  --page-bg: #fdf2f8;
   --rose-500: #ec4899;
   --rose-400: #f43f8f;
   --text: #4b1632;
@@ -75,7 +73,7 @@ html {
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 48%, var(--bg-deep) 100%);
+  background: var(--page-bg);
   color: var(--text);
   font-family: var(--font-ui);
   line-height: 1.4;
