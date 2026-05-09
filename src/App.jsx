@@ -1,7 +1,16 @@
 import './App.css'
 import { useCallback, useEffect, useState } from 'react'
+import { TerminalView } from './TerminalView.jsx'
 
-const API_BASE = 'http://localhost:8000'
+/** Empty = same origin (Vite proxy in dev, FastAPI in prod). Override with VITE_API_BASE in .env if needed. */
+const API_BASE = import.meta.env.VITE_API_BASE ?? ''
+
+const wsLogsUrl = () => {
+  if (import.meta.env.VITE_WS_LOGS_URL) return import.meta.env.VITE_WS_LOGS_URL
+  const { protocol, host } = window.location
+  const wsProto = protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${wsProto}//${host}/ws/logs`
+}
 const CHANNEL_IDS_STORAGE_KEY = 'consensia.selectedChannelIds'
 
 const readStoredChannelIds = () => {
@@ -26,6 +35,7 @@ function App() {
   const [togglePending, setTogglePending] = useState(false)
   const [savePending, setSavePending] = useState(false)
   const [banner, setBanner] = useState({ type: '', text: '' })
+  const [view, setView] = useState('dashboard')
 
   useEffect(() => {
     persistChannelIds(selectedChannelIds)
@@ -103,6 +113,14 @@ function App() {
       .finally(() => setTogglePending(false))
   }
 
+  if (view === 'logs') {
+    return (
+      <main className="page">
+        <TerminalView wsLogsUrl={wsLogsUrl()} onClose={() => setView('dashboard')} />
+      </main>
+    )
+  }
+
   return (
     <main className="page">
       <section className="card" aria-labelledby="page-title">
@@ -121,14 +139,19 @@ function App() {
         </header>
 
         <div className="control-bar">
-          <button
-            type="button"
-            className={`agent-toggle-btn${agentRunning ? ' agent-toggle-btn-on' : ''}`}
-            onClick={handleToggleAgent}
-            disabled={togglePending}
-          >
-            {togglePending ? '…' : agentRunning ? 'Stop agent' : 'Start agent'}
-          </button>
+          <div className="control-bar-primary">
+            <button
+              type="button"
+              className={`agent-toggle-btn${agentRunning ? ' agent-toggle-btn-on' : ''}`}
+              onClick={handleToggleAgent}
+              disabled={togglePending}
+            >
+              {togglePending ? '…' : agentRunning ? 'Stop agent' : 'Start agent'}
+            </button>
+            <button type="button" className="terminal-open-btn" onClick={() => setView('logs')}>
+              Open terminal
+            </button>
+          </div>
           <button
             type="button"
             className="submit-btn save-config-btn"

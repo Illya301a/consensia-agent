@@ -87,6 +87,36 @@ h1 {
   margin-bottom: 0.85rem;
 }
 
+.control-bar-primary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.terminal-open-btn {
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 0.75rem 1.05rem;
+  font: inherit;
+  font-weight: 650;
+  color: var(--text);
+  background: #fff;
+  cursor: pointer;
+  min-height: 44px;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.terminal-open-btn:hover {
+  border-color: rgba(236, 72, 153, 0.45);
+  background: var(--surface-muted);
+}
+
+.terminal-open-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(244, 63, 143, 0.16);
+}
+
 .agent-toggle-btn {
   border: 1px solid var(--surface-border);
   border-radius: 12px;
@@ -316,6 +346,10 @@ h1 {
   .control-bar {
     flex-wrap: nowrap;
     justify-content: space-between;
+  }
+
+  .control-bar-primary {
+    flex-wrap: nowrap;
   }
 
   .save-config-btn {

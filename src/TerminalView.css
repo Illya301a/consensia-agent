@@ -1,0 +1,86 @@
+.terminal-view {
+  width: min(100%, 860px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: min(85vh, 720px);
+}
+
+.terminal-view-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.terminal-view-title {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  color: var(--text);
+}
+
+.terminal-ws-status {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.terminal-ws-status-open {
+  color: var(--rose-500, #ec4899);
+}
+
+.terminal-ws-status-connecting {
+  color: var(--text-muted, #6b3750);
+}
+
+.terminal-ws-status-closed,
+.terminal-ws-status-error {
+  color: #9d174d;
+}
+
+.terminal-back-btn {
+  border: 1px solid var(--surface-border, rgba(244, 63, 143, 0.18));
+  border-radius: 12px;
+  padding: 0.65rem 1rem;
+  font: inherit;
+  font-weight: 650;
+  color: var(--text);
+  background: #fff;
+  cursor: pointer;
+  min-height: 44px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.terminal-back-btn:hover {
+  border-color: rgba(236, 72, 153, 0.45);
+}
+
+.terminal-back-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(244, 63, 143, 0.16);
+}
+
+.terminal-scroll {
+  flex: 1;
+  min-height: 280px;
+  max-height: min(60vh, 560px);
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #1a1a1a;
+  background: #0d0d0d;
+}
+
+.terminal-pre {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  font-family: ui-monospace, 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #e8e8e8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
