@@ -30,7 +30,7 @@ Hugging Face CLI: The `hf` tool for model management.
 1. Clone the repository and create a Python environment:
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Illya301a/consensia-agent.git
 cd consensia
 python -m venv venv
 source venv/bin/activate  # On Windows use: venv\Scripts\activate
