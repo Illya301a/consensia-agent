@@ -29,8 +29,8 @@ logger = logging.getLogger(__name__)
 # ML Configurations
 TAGGER_BASE = "Qwen/Qwen2.5-1.5B-Instruct"
 ANALYZER_BASE = "Qwen/Qwen2.5-3B-Instruct" 
-TAGGER_LORA = "tagger_1_5B_lora_final"
-ANALYZER_LORA = "analyzer_3B_lora_final"
+TAGGER_LORA = "itsSHAS/consensia-tagger-1.5b-lora"
+ANALYZER_LORA = "itsSHAS/consensia-analyzer_3B_lora_final"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Telegram and Web3 Setup
