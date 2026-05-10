@@ -39,7 +39,7 @@ API_HASH = os.getenv("USERBOT_API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ALERT_CHAT_ID = int(os.getenv("ALERT_CHAT_ID", 0))
 
-app_bot = Client("sentinel_userbot", api_id=API_ID, api_hash=API_HASH)
+app_bot = Client("consensia_userbot", api_id=API_ID, api_hash=API_HASH)
 notifier_bot = Client("notifier_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Connect to Ethereum Mainnet (Public Ankr node)
